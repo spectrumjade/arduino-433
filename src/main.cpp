@@ -40,6 +40,7 @@ extern "C" {
 }
 #else
 #include <RCSwitch.h>
+RCSwitch::Protocol minkaProtocol = {330, {39, 0}, {2, 1}, {1,  2}, true};
 #endif
 
 #ifdef USE_CC1101
@@ -126,7 +127,7 @@ void setup() {
 //CC1101 Settings:                (Settings with "//" are optional!)
   ELECHOUSE_cc1101.Init();    // must be set to initialize the cc1101! set TxPower  PA10, PA7, PA5, PA0, PA_10, PA_15, PA_20, PA_30.
 //ELECHOUSE_cc1101.setRxBW(16);     // set Receive filter bandwidth (default = 812khz) 1 = 58khz, 2 = 67khz, 3 = 81khz, 4 = 101khz, 5 = 116khz, 6 = 135khz, 7 = 162khz, 8 = 203khz, 9 = 232khz, 10 = 270khz, 11 = 325khz, 12 = 406khz, 13 = 464khz, 14 = 541khz, 15 = 650khz, 16 = 812khz.
-  ELECHOUSE_cc1101.setMHZ(433.92); // Here you can set your basic frequency. The lib calculates the frequency automatically (default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ. Read More info from datasheet.
+  ELECHOUSE_cc1101.setMHZ(303.914); // Here you can set your basic frequency. The lib calculates the frequency automatically (default = 433.92).The cc1101 can: 300-348 MHZ, 387-464MHZ and 779-928MHZ. Read More info from datasheet.
   ELECHOUSE_cc1101.SetRx();  // set Recive on
 #endif
 
@@ -219,9 +220,13 @@ void sendRcData() {
     long pulse = getValue(receivedChars, '/', 1).toInt();
     long protocol = getValue(receivedChars, '/', 2).toInt();
     if(protocol==0) protocol = 1;
-    mySwitch.setProtocol(protocol);
+    if (protocol == 100) {
+      mySwitch.setProtocol(minkaProtocol);
+    } else {
+      mySwitch.setProtocol(protocol);
+    }
     mySwitch.setPulseLength(pulse);
-    mySwitch.send(value, 24);
+    mySwitch.send(value, 13);
 #endif
 #ifdef USE_CC1101
     ELECHOUSE_cc1101.SetRx();
